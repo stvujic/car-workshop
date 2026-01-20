@@ -44,12 +44,13 @@
         @else
             <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-top: 20px;">
                 @foreach($workshops as $workshop)
-                    <div style="border: 1px solid #ddd; padding: 12px;">
+                    <a href="{{ route('workshops.show', $workshop->slug) }}"
+                       style="border: 1px solid #ddd; padding: 12px; text-decoration: none; color: inherit; display: block;">
                         <div style="height: 120px; background: #f3f3f3; margin-bottom: 10px;"></div>
 
                         <div style="font-weight: 600;">{{ $workshop->name }}</div>
                         <div style="color: #666;">{{ $workshop->city }}</div>
-                    </div>
+                    </a>
                 @endforeach
             </div>
 
