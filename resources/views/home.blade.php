@@ -7,6 +7,16 @@
     <title>Document</title>
 </head>
 <body>
+<div class="d-flex justify-content-end mb-4">
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+
+        <button type="submit" class="btn btn-sm btn-outline-secondary">
+            Logout
+        </button>
+    </form>
+</div>
+
     <nav>
         <div>
             <a href="#about">About Us</a>

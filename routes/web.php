@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminWorkshopApprovalController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\OwnerWorkshopController;
 use App\Http\Controllers\ProfileController;
@@ -26,6 +27,12 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
    Route::get('/myshops/{workshop}/edit', [OwnerWorkshopController::class, 'edit'])->name('owner.myshops.edit');
    Route::put('/myshops/{workshop}', [OwnerWorkshopController::class, 'update'])->name('owner.myshops.update');
    Route::delete('/myshops/{workshop}', [OwnerWorkshopController::class, 'destroy'])->name('owner.myshops.destroy');
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+   Route::get('/workshops/pending', [AdminWorkshopApprovalController::class, 'index'])->name('admin.workshops.pending');
+   Route::patch('/workshops/{workshop}/approve', [AdminWorkshopApprovalController::class, 'approve'])->name('admin.workshops.approve');
+   Route::patch('/workshops/{workshop}/reject', [AdminWorkshopApprovalController::class, 'reject'])->name('admin.workshops.reject');
 });
 
 require __DIR__.'/auth.php';
