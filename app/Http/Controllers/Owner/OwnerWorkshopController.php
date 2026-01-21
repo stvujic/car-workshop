@@ -43,4 +43,34 @@ class OwnerWorkshopController extends Controller
             ->with('success', 'Workshop successfully created and waiting for approval.');
     }
 
+    public function edit(Workshop $workshop)
+    {
+        if($workshop->owner_id != auth()->id()){
+            abort(403);
+        }
+        return view('owner.myshops.edit', compact('workshop'));
+    }
+
+    public function update(Request $request, Workshop $workshop)
+    {
+        if($workshop->owner_id != auth()->id()){
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $data['status'] = 'pending'; // ovo je reset statusa na pending jer admin mora da odobri promenjene podatke
+
+        $workshop->update($data);
+
+        return redirect()
+            ->route('owner.myshops.index')
+            ->with('success', 'Workshop successfully updated and waiting for approval.');
+    }
 }

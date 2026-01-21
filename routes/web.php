@@ -23,6 +23,8 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
    Route::get('/myshops', [OwnerWorkshopController::class, 'index'])->name('owner.myshops.index');
    Route::get('/myshops/create', [OwnerWorkshopController::class, 'create'])->name('owner.myshops.create');
    Route::post('/myshops', [OwnerWorkshopController::class, 'store'])->name('owner.myshops.store');
+   Route::get('/myshops/{workshop}/edit', [OwnerWorkshopController::class, 'edit'])->name('owner.myshops.edit');
+   Route::put('/myshops/{workshop}', [OwnerWorkshopController::class, 'update'])->name('owner.myshops.update');
 });
 
 require __DIR__.'/auth.php';
