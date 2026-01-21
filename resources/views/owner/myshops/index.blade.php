@@ -43,7 +43,13 @@
                     </div>
                 </div>
 
+
                 <div class="d-flex gap-2">
+
+                    <a href="{{ route('workshops.show', $workshop->slug) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                        Open
+                    </a>
+
                     <a href="{{ route('owner.myshops.edit', $workshop) }}" class="btn btn-sm btn-outline-primary">
                         Edit
                     </a>
