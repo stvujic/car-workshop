@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Owner;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Workshop;
+use Illuminate\Support\Str;
+
 
 class OwnerWorkshopController extends Controller
 {
@@ -61,7 +63,7 @@ class OwnerWorkshopController extends Controller
             'name' => 'required|string|max:255',
             'city' => 'required|string|max:255',
             'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
+            'phone' => 'required|string|max:50',
             'description' => 'nullable|string',
         ]);
 
@@ -72,5 +74,18 @@ class OwnerWorkshopController extends Controller
         return redirect()
             ->route('owner.myshops.index')
             ->with('success', 'Workshop successfully updated and waiting for approval.');
+    }
+
+    public function destroy(Workshop $workshop)
+    {
+        if($workshop->owner_id != auth()->id()){
+            abort(403);
+        }
+
+        $workshop->delete();
+
+        return redirect()
+            ->route('owner.myshops.index')
+            ->with('success', 'Workshop successfully deleted');
     }
 }

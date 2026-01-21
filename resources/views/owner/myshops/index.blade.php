@@ -47,7 +47,18 @@
                     <a href="{{ route('owner.myshops.edit', $workshop) }}" class="btn btn-sm btn-outline-primary">
                         Edit
                     </a>
+
+                    <form method="POST" action="{{ route('owner.myshops.destroy', $workshop) }}"
+                          onsubmit="return confirm('Are you sure you want to delete this workshop?');">
+                        @csrf
+                        @method('DELETE')
+
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Delete
+                        </button>
+                    </form>
                 </div>
+
             </div>
         @endforeach
     </div>
