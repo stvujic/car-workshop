@@ -21,6 +21,8 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
    Route::get('/myshops', [OwnerWorkshopController::class, 'index'])->name('owner.myshops.index');
+   Route::get('/myshops/create', [OwnerWorkshopController::class, 'create'])->name('owner.myshops.create');
+   Route::post('/myshops', [OwnerWorkshopController::class, 'store'])->name('owner.myshops.store');
 });
 
 require __DIR__.'/auth.php';
