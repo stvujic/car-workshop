@@ -52,4 +52,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Workshop::class, 'owner_id');
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
 }

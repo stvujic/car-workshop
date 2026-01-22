@@ -17,5 +17,10 @@ class Workshop extends Model
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }
 
