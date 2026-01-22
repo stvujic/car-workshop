@@ -22,6 +22,10 @@
             <a href="#about">About Us</a>
             <a href="#workshops">Workshops</a>
             <a href="#contact">Contact Us</a>
+
+            @auth
+                <a href="{{ route('bookings.index') }}">My bookings</a>
+            @endauth
         </div>
 
         <div>

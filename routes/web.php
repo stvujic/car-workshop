@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminWorkshopApprovalController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\OwnerWorkshopController;
 use App\Http\Controllers\ProfileController;
@@ -21,6 +22,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/workshops/{workshop:slug}/bookings', [WorkshopController::class, 'storeBooking'])
         ->name('workshops.bookings.store');
+    Route::get('/my-bookings', [BookingController::class, 'index'])->name('bookings.index');
 });
 
 Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
@@ -30,6 +32,7 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
    Route::get('/myshops/{workshop}/edit', [OwnerWorkshopController::class, 'edit'])->name('owner.myshops.edit');
    Route::put('/myshops/{workshop}', [OwnerWorkshopController::class, 'update'])->name('owner.myshops.update');
    Route::delete('/myshops/{workshop}', [OwnerWorkshopController::class, 'destroy'])->name('owner.myshops.destroy');
+
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
