@@ -34,6 +34,8 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
    Route::put('/myshops/{workshop}', [OwnerWorkshopController::class, 'update'])->name('owner.myshops.update');
    Route::delete('/myshops/{workshop}', [OwnerWorkshopController::class, 'destroy'])->name('owner.myshops.destroy');
    Route::get('/bookings', [OwnerBookingController::class, 'index'])->name('owner.bookings.index');
+   Route::patch('/bookings/{booking}/approve', [OwnerBookingController::class, 'approve'])->name('owner.bookings.approve');
+   Route::patch('/bookings/{booking}/cancel', [OwnerBookingController::class, 'cancel'])->name('owner.bookings.cancel');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {

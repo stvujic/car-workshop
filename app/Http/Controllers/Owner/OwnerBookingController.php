@@ -19,4 +19,31 @@ class OwnerBookingController extends Controller
 
         return view('owner.bookings.index', compact('bookings'));
     }
+
+    public function approve(Booking $booking)
+    {
+        if($booking->workshop->owner_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $booking->update([
+            'status'=>'approved'
+        ]);
+
+        return back()->with('success', 'Booking approved successfully');
+
+    }
+
+    public function cancel(Booking $booking)
+    {
+        if($booking->workshop->owner_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $booking->update([
+            'status'=>'cancelled'
+        ]);
+
+        return back()->with('success', 'Booking has been cancelled');
+    }
 }
