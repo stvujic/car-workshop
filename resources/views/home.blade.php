@@ -33,10 +33,26 @@
                 </li>
 
                 @auth
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('bookings.index') }}">My bookings</a>
-                    </li>
+                    {{-- CUSTOMER --}}
+                    @if(auth()->user()->role === 'customer')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('bookings.index') }}">My bookings</a>
+                        </li>
+                    @endif
+
+                    {{-- OWNER --}}
+                    @if(auth()->user()->role === 'owner')
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('owner.bookings.index') }}">All bookings</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('owner.myshops.index') }}">My shops</a>
+                        </li>
+                    @endif
                 @endauth
+
+
             </ul>
 
             {{-- RIGHT SIDE --}}
