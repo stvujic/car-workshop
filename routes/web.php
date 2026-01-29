@@ -5,6 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Owner\OwnerBookingController;
 use App\Http\Controllers\Owner\OwnerWorkshopController;
+use App\Http\Controllers\Owner\OwnerWorkshopServiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WorkshopController;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,14 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
    Route::get('/bookings', [OwnerBookingController::class, 'index'])->name('owner.bookings.index');
    Route::patch('/bookings/{booking}/approve', [OwnerBookingController::class, 'approve'])->name('owner.bookings.approve');
    Route::patch('/bookings/{booking}/cancel', [OwnerBookingController::class, 'cancel'])->name('owner.bookings.cancel');
+
+   Route::get('/myshops/{workshop}/services', [OwnerWorkshopServiceController::class, 'index'])->name('owner.services.index');
+   Route::get('/myshops/{workshop}/services/create', [OwnerWorkshopServiceController::class, 'create'])->name('owner.services.create');
+   Route::post('/myshops/{workshop}/services', [OwnerWorkshopServiceController::class, 'store'])->name('owner.services.store');
+   Route::get('/myshops/{workshop}/services/{service}/edit', [OwnerWorkshopServiceController::class, 'edit'])->name('owner.services.edit');
+   Route::put('/myshops/{workshop}/services/{service}', [OwnerWorkshopServiceController::class, 'update'])->name('owner.services.update');
+   Route::delete('/myshops/{workshop}/services/{service}', [OwnerWorkshopServiceController::class, 'destroy'])->name('owner.services.destroy');
+
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {

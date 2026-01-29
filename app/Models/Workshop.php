@@ -22,5 +22,10 @@ class Workshop extends Model
     {
         return $this->hasMany(Booking::class);
     }
+
+    public function services()
+    {
+        return $this->hasMany(Service::class);
+    }
 }
 
