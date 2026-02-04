@@ -27,5 +27,15 @@ class Workshop extends Model
     {
         return $this->hasMany(Service::class);
     }
+
+    public function workingHours()
+    {
+        return $this->hasMany(WorkshopWorkingHour::class);
+    }
+
+    public function closedDays()
+    {
+        return $this->hasMany(WorkshopClosedDay::class);
+    }
 }
 

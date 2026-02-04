@@ -46,6 +46,11 @@
 
                 <div class="d-flex gap-2">
 
+                    <a href="{{ route('owner.working_hours.index', $workshop) }}"
+                       class="btn btn-sm btn-outline-dark">
+                        Working Hours
+                    </a>
+
                     <a href="{{ route('workshops.show', $workshop->slug) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
                         Open
                     </a>

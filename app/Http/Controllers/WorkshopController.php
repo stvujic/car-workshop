@@ -12,7 +12,35 @@ class WorkshopController extends Controller
     {
         if($workshop->status !== 'approved'){abort(404);}
 
-        return view('workshops.show', compact('workshop'));
+        $days= [
+            1 => 'Monday',
+            2 => 'Tuesday',
+            3 => 'Wednesday',
+            4 => 'Thursday',
+            5 => 'Friday',
+            6 => 'Saturday',
+            7 => 'Sunday',
+        ];
+
+        $existing = $workshop->workingHours()
+            ->orderBy('day_of_week')
+            ->get()
+            ->keyBy('day_of_week');
+
+        $workingHoursForView = [];
+
+        foreach($days as $dayNumber=> $dayName) {
+            $row = $existing->get($dayNumber);
+
+            $workingHoursForView[] = [
+                'label' => $dayName,
+                'is_active' => $row ? (bool) $row->is_active : false,
+                'start_time' => $row ? substr($row->start_time, 0, 5) : null,
+                'end_time' => $row ? substr($row->end_time, 0, 5) : null,
+            ];
+        }
+
+        return view('workshops.show', compact('workshop', 'workingHoursForView'));
     }
 
     public function storeBooking(Request $request, Workshop $workshop)

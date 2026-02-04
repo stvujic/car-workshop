@@ -130,6 +130,45 @@
         </div>
     </div>
 
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Working hours</h5>
+
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Day</th>
+                    <th>Status</th>
+                    <th>Hours</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($workingHoursForView as $row)
+                    <tr>
+                        <td class="fw-semibold">{{ $row['label'] }}</td>
+
+                        <td>
+                            @if($row['is_active'])
+                                <span class="badge text-bg-success">Open</span>
+                            @else
+                                <span class="badge text-bg-secondary">Closed</span>
+                            @endif
+                        </td>
+
+                        <td>
+                            @if($row['is_active'] && $row['start_time'] && $row['end_time'])
+                                {{ $row['start_time'] }} – {{ $row['end_time'] }}
+                            @else
+                                —
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 </body>
