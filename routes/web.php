@@ -50,7 +50,6 @@ Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
 
    Route::get('/myshops/{workshop}/working-hours', [OwnerWorkingHourController::class, 'index'])->name('owner.working_hours.index');
    Route::post('/myshops/{workshop}/working-hours', [OwnerWorkingHourController::class, 'store'])->name('owner.working_hours.store');
-   Route::delete('/myshops/{workshop}/working-hours/{workingHour}', [OwnerWorkingHourController::class, 'destroy'])->name('owner.working_hours.destroy');
 
     Route::get('/myshops/{workshop}/closed-days', [OwnerClosedDayController::class, 'index'])->name('owner.closed_days.index');
     Route::post('/myshops/{workshop}/closed-days', [OwnerClosedDayController::class, 'store'])->name('owner.closed_days.store');

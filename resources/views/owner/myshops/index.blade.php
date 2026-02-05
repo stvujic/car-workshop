@@ -51,6 +51,11 @@
                         Working Hours
                     </a>
 
+                    <a href="{{route('owner.closed_days.index', $workshop)}}"
+                        class="btn btn-sm btn-outline-dark">
+                        Closed Days
+                    </a>
+
                     <a href="{{ route('workshops.show', $workshop->slug) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
                         Open
                     </a>

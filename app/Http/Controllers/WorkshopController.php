@@ -6,7 +6,7 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Models\Workshop;
 
-class WorkshopController extends Controller
+    class WorkshopController extends Controller
 {
     public function show(Workshop $workshop)
     {
@@ -40,7 +40,11 @@ class WorkshopController extends Controller
             ];
         }
 
-        return view('workshops.show', compact('workshop', 'workingHoursForView'));
+        $closedDays = $workshop->closedDays()
+            ->orderBy('start_date')
+            ->get();
+
+        return view('workshops.show', compact('workshop', 'workingHoursForView', 'closedDays'));
     }
 
     public function storeBooking(Request $request, Workshop $workshop)

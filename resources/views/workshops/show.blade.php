@@ -169,6 +169,34 @@
         </div>
     </div>
 
+    @if($closedDays->count())
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Closed days</h5>
+
+                <ul class="list-group list-group-flush">
+                    @foreach($closedDays as $row)
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">
+                                {{ $row->reason ?? 'Closed' }}
+                            </div>
+
+                            <div class="text-muted small">
+                                @if($row->start_date->equalTo($row->end_date))
+                                    {{ $row->start_date->format('d.m.Y') }}
+                                @else
+                                    {{ $row->start_date->format('d.m.Y') }}
+                                    –
+                                    {{ $row->end_date->format('d.m.Y') }}
+                                @endif
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    @endif
+
 </div>
 
 </body>
