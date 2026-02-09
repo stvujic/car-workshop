@@ -86,7 +86,12 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Time</label>
-                                <input type="time" name="time" id="booking-time" class="form-control" value="{{ old('time') }}">
+                                <select name="time" id="booking-time" class="form-select" disabled>
+                                    <option value="">Select date first</option>
+                                </select>
+                                @error('time') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+
+                                <div id="availability-message" class="text-muted small mt-2"></div>
                                 @error('time') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
@@ -103,16 +108,88 @@
 
                         <script>
                             const dateInput = document.getElementById('booking-date');
-                            const timeInput = document.getElementById('booking-time');
+                            const timeSelect = document.getElementById('booking-time');
                             const submitBtn = document.getElementById('booking-submit');
+                            const msg = document.getElementById('availability-message');
 
-                            function toggleButton() {
-                                submitBtn.disabled = !(dateInput.value && timeInput.value);
+                            function setSubmitState() {
+                                submitBtn.disabled = !(dateInput.value && timeSelect.value);
                             }
 
-                            dateInput.addEventListener('change', toggleButton);
-                            timeInput.addEventListener('change', toggleButton);
+                            function resetTimes(placeholder = 'Select date first') {
+                                timeSelect.innerHTML = `<option value="">${placeholder}</option>`;
+                                timeSelect.value = '';
+                                timeSelect.disabled = true;
+                                setSubmitState();
+                            }
+
+                            async function loadTimes(date) {
+                                resetTimes('Loading...');
+                                msg.textContent = '';
+
+                                try {
+                                    const url = "{{ route('workshops.available-times', $workshop) }}" + "?date=" + encodeURIComponent(date);
+                                    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                                    const data = await res.json();
+
+                                    timeSelect.innerHTML = `<option value="">Select time</option>`;
+
+                                    if (data.available_times && data.available_times.length) {
+                                        data.available_times.forEach(t => {
+                                            const opt = document.createElement('option');
+                                            opt.value = t;
+                                            opt.textContent = t;
+                                            timeSelect.appendChild(opt);
+                                        });
+
+                                        timeSelect.disabled = false;
+                                    } else {
+                                        resetTimes('No available times');
+                                    }
+
+                                    if (data.message) {
+                                        msg.textContent = data.message;
+                                    }
+
+                                } catch (e) {
+                                    resetTimes('Error loading times');
+                                    msg.textContent = 'Could not load available times. Try again.';
+                                }
+
+                                setSubmitState();
+                            }
+
+                            // If user changes date -> fetch times
+                            dateInput.addEventListener('change', () => {
+                                if (!dateInput.value) {
+                                    resetTimes();
+                                    msg.textContent = '';
+                                    return;
+                                }
+                                loadTimes(dateInput.value);
+                            });
+
+                            // If user selects time -> enable submit
+                            timeSelect.addEventListener('change', setSubmitState);
+
+                            // On page load: if old date exists, load times and preselect old time
+                            window.addEventListener('DOMContentLoaded', () => {
+                                const oldDate = dateInput.value;
+                                const oldTime = "{{ old('time') }}";
+
+                                if (oldDate) {
+                                    loadTimes(oldDate).then(() => {
+                                        if (oldTime) {
+                                            timeSelect.value = oldTime;
+                                        }
+                                        setSubmitState();
+                                    });
+                                } else {
+                                    resetTimes();
+                                }
+                            });
                         </script>
+
 
                     @else
                         <h5 class="card-title mb-2">Book an appointment</h5>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Models\Workshop;
+use Carbon\Carbon;
 
     class WorkshopController extends Controller
 {
@@ -76,4 +77,75 @@ use App\Models\Workshop;
 
         return back()->with('success', 'Workshop booked successfully.');
     }
+
+    public function availableTimes(Request $request, Workshop $workshop)
+    {
+        if($workshop->status !== 'approved')
+        {
+            abort(404);
+        }
+
+        $date= $request->validate([
+           'date' => ['required', 'date', 'after_or_equal:today'],
+        ]);
+
+        $date=Carbon::parse($date['date']);
+        $dayOfWeek = $date->dayOfWeek;
+        $dateString= $date->toDateString();
+
+        $isClosed = $workshop->closedDays()
+            ->whereDate('start_date', '<=', $dateString)
+            ->whereDate('end_date', '>=', $dateString)
+            ->exists();
+
+        if($isClosed){
+            return response()->json([
+                'available_times'=>[],
+                'message' => 'Workshop is closed on selected date.',
+            ]);
+        }
+
+        $wh = $workshop->workingHours()
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+
+        if (!$wh || !$wh->is_active) {
+            return response()->json([
+                'available_times' => [],
+                'message' => 'Workshop is not working on selected day.',
+            ]);
+        }
+
+        $start = substr($wh->start_time, 0, 5); // HH:MM
+        $end   = substr($wh->end_time, 0, 5);
+
+        // 3) Existing bookings for that date (pending + approved block slots)
+        $taken = $workshop->bookings()
+            ->where('date', $dateString)
+            ->whereIn('status', ['pending', 'approved'])
+            ->pluck('time')
+            ->map(fn ($t) => substr($t, 0, 5))
+            ->values()
+            ->all();
+
+        // 4) Generate 30-min slots within working hours
+        $slots = [];
+        $cursor = Carbon::createFromFormat('Y-m-d H:i', $dateString . ' ' . $start);
+        $endDt  = Carbon::createFromFormat('Y-m-d H:i', $dateString . ' ' . $end);
+
+        while ($cursor->lte($endDt)) {
+            $slots[] = $cursor->format('H:i');
+            $cursor->addMinutes(30);
+        }
+
+        // 5) Remove taken slots
+        $available = array_values(array_diff($slots, $taken));
+
+        return response()->json([
+            'available_times' => $available,
+            'message' => count($available) ? null : 'No free times for selected date.',
+            'working_hours' => ['start' => $start, 'end' => $end],
+        ]);
+    }
+
 }

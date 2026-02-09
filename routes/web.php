@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/workshops/{workshop:slug}', [WorkshopController::class, 'show'])->name('workshops.show');
+Route::get('/workshops/{workshop}/available-times', [WorkshopController::class, 'availableTimes'])->name('workshops.available-times');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
