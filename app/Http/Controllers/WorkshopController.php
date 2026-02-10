@@ -58,22 +58,70 @@ use Carbon\Carbon;
             'note' => 'nullable|string|max:1000',
         ]);
 
-        try{
-            Booking::create([
-                'workshop_id' => $workshop->id,
-                'user_id' => auth()->id(),
-                'date' => $data['date'],
-                'time' => $data['time'],
-                'note' => $data['note'] ?? null,
-                'status' => 'pending',
-            ]);
+        $date=Carbon::parse($data['date']);
+        $dateString=$date->toDateString();
+        $time=$data['time'];
+
+        $isClosed = $workshop->closedDays()
+            ->whereDate('start_date', '<=', $dateString) //Daj mi samo one closed days zapise gde je start_date pre ili na taj datum tj $dateString, jer ako zatvaranje pocinje posle tog datuma, ne moze da ga blokira
+            ->where(function ($q) use ($dateString) {
+                $q->whereNull('end_date') //Ako end_date ne postoji onda je zatvoren samo jedan dan
+                    ->orWhereDate('end_date', '>=', $dateString); //ako end_date postoji, proveri da li je end_date posle ili na trazeni datum
+            })
+            ->exists(); //Da li postoji bar jedan red koji ispunjava ove uslove
+
+        if($isClosed) {
+            return back()
+                ->withInput()
+                ->with('error', 'Workshop is closed on selected date.');
         }
 
-        catch (\Illuminate\Database\QueryException $e){
+        // 1) Provera working hours za taj dan u nedelji
+        $dayOfWeek = $date->dayOfWeekIso;
+
+        $wh=$workshop->workingHours()
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+
+        if(!$wh || !$wh->is_active)
+        {
+            return back()
+                ->withInput()
+                ->with('error', 'Workshop is not available on selected date.');
+        }
+
+        $start = substr($wh->start_time, 0, 5);
+        $end   = substr($wh->end_time, 0, 5);
+
+        // 2) Provera da je time unutar radnog vremena
+        if($time<$start||$time>=$end)
+        {
+            return back()
+                ->withInput()
+                ->with('error', 'Please choose a time between '.$start.' and '.$end.'.');
+        }
+
+        // 3) Provera zauzetosti
+        $alreadyTaken =$workshop->bookings()
+            ->where('date', $dateString)
+            ->where('time', $time)
+            ->whereIn('status', ['pending', 'approved'])
+            ->exists();
+
+        if($alreadyTaken)
             return back()
                 ->withInput()
                 ->with('error', 'This time slot is already taken. Choose another time.');
-        }
+
+
+        Booking::create([
+                'workshop_id' => $workshop->id,
+                'user_id' => auth()->id(),
+                'date' => $dateString,
+                'time' => $time,
+                'note' => $data['note'] ?? null,
+                'status' => 'pending',
+            ]);
 
         return back()->with('success', 'Workshop booked successfully.');
     }
