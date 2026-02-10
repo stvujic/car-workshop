@@ -101,7 +101,29 @@
     <div class="container">
         <h2>Workshops</h2>
 
-        @if($workshops->count() === 0)
+        <form method="GET" action="{{ route('home') }}" class="row g-2 align-items-end mt-2">
+            <div class="col-12 col-md-4">
+                <label class="form-label mb-1">City</label>
+                <select name="city" class="form-select" onchange="this.form.submit()">
+                    <option value="">All cities</option>
+
+                    @foreach($cities as $city)
+                        <option value="{{ $city }}" {{ request('city') === $city ? 'selected' : '' }}>
+                            {{ $city }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-12 col-md-auto">
+                <a href="{{ route('home') }}" class="btn btn-outline-secondary">
+                    Reset
+                </a>
+            </div>
+        </form>
+
+
+    @if($workshops->count() === 0)
             <p>Trenutno nema odobrenih servisa.</p>
         @else
             <div class="row g-4 mt-3">
