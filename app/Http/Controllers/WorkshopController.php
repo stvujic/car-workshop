@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\Workshop;
 use Carbon\Carbon;
@@ -114,7 +115,8 @@ use Carbon\Carbon;
                 ->with('error', 'This time slot is already taken. Choose another time.');
 
 
-        Booking::create([
+        try {
+            Booking::create([
                 'workshop_id' => $workshop->id,
                 'user_id' => auth()->id(),
                 'date' => $dateString,
@@ -122,6 +124,11 @@ use Carbon\Carbon;
                 'note' => $data['note'] ?? null,
                 'status' => 'pending',
             ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'This time slot is already taken. Choose another time.');
+        }
 
         return back()->with('success', 'Workshop booked successfully.');
     }
