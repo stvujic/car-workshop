@@ -7,14 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\Workshop;
 use Illuminate\Support\Str;
 
-
 class OwnerWorkshopController extends Controller
 {
     public function index()
     {
         $workshops = Workshop::where('owner_id', auth()->id())
-        ->latest()
-        ->paginate(10);
+            ->latest()
+            ->paginate(10);
 
         return view('owner.myshops.index', compact('workshops'));
     }
@@ -35,8 +34,8 @@ class OwnerWorkshopController extends Controller
         ]);
 
         $data['owner_id'] = auth()->id();
-        $data['slug'] = \Str::slug($data['name']) . '-' . \Str::random(6);
-        $data['status'] = 'pending';
+        $data['slug'] = Str::slug($data['name']) . '-' . Str::random(6);
+        $data['status'] = Workshop::STATUS_PENDING;
 
         Workshop::create($data);
 
@@ -47,15 +46,16 @@ class OwnerWorkshopController extends Controller
 
     public function edit(Workshop $workshop)
     {
-        if($workshop->owner_id != auth()->id()){
+        if ($workshop->owner_id != auth()->id()) {
             abort(403);
         }
+
         return view('owner.myshops.edit', compact('workshop'));
     }
 
     public function update(Request $request, Workshop $workshop)
     {
-        if($workshop->owner_id != auth()->id()){
+        if ($workshop->owner_id != auth()->id()) {
             abort(403);
         }
 
@@ -67,7 +67,8 @@ class OwnerWorkshopController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $data['status'] = 'pending'; // ovo je reset statusa na pending jer admin mora da odobri promenjene podatke
+        // reset statusa na pending jer admin mora da odobri promene
+        $data['status'] = Workshop::STATUS_PENDING;
 
         $workshop->update($data);
 
@@ -78,7 +79,7 @@ class OwnerWorkshopController extends Controller
 
     public function destroy(Workshop $workshop)
     {
-        if($workshop->owner_id != auth()->id()){
+        if ($workshop->owner_id != auth()->id()) {
             abort(403);
         }
 

@@ -8,13 +8,15 @@ use Illuminate\Http\Request;
 use App\Models\Workshop;
 use Carbon\Carbon;
 
-    class WorkshopController extends Controller
+class WorkshopController extends Controller
 {
     public function show(Workshop $workshop)
     {
-        if($workshop->status !== 'approved'){abort(404);}
+        if ($workshop->status !== Workshop::STATUS_APPROVED) {
+            abort(404);
+        }
 
-        $days= [
+        $days = [
             1 => 'Monday',
             2 => 'Tuesday',
             3 => 'Wednesday',
@@ -31,7 +33,7 @@ use Carbon\Carbon;
 
         $workingHoursForView = [];
 
-        foreach($days as $dayNumber=> $dayName) {
+        foreach ($days as $dayNumber => $dayName) {
             $row = $existing->get($dayNumber);
 
             $workingHoursForView[] = [
@@ -51,7 +53,9 @@ use Carbon\Carbon;
 
     public function storeBooking(Request $request, Workshop $workshop)
     {
-        if($workshop->status !== 'approved'){abort(404);}
+        if ($workshop->status !== Workshop::STATUS_APPROVED) {
+            abort(404);
+        }
 
         $data = $request->validate([
             'date' => 'required|date|after_or_equal:today',
@@ -59,19 +63,19 @@ use Carbon\Carbon;
             'note' => 'nullable|string|max:1000',
         ]);
 
-        $date=Carbon::parse($data['date']);
-        $dateString=$date->toDateString();
-        $time=$data['time'];
+        $date = Carbon::parse($data['date']);
+        $dateString = $date->toDateString();
+        $time = $data['time'];
 
         $isClosed = $workshop->closedDays()
-            ->whereDate('start_date', '<=', $dateString) //Daj mi samo one closed days zapise gde je start_date pre ili na taj datum tj $dateString, jer ako zatvaranje pocinje posle tog datuma, ne moze da ga blokira
+            ->whereDate('start_date', '<=', $dateString)
             ->where(function ($q) use ($dateString) {
-                $q->whereNull('end_date') //Ako end_date ne postoji onda je zatvoren samo jedan dan
-                    ->orWhereDate('end_date', '>=', $dateString); //ako end_date postoji, proveri da li je end_date posle ili na trazeni datum
+                $q->whereNull('end_date')
+                    ->orWhereDate('end_date', '>=', $dateString);
             })
-            ->exists(); //Da li postoji bar jedan red koji ispunjava ove uslove
+            ->exists();
 
-        if($isClosed) {
+        if ($isClosed) {
             return back()
                 ->withInput()
                 ->with('error', 'Workshop is closed on selected date.');
@@ -80,12 +84,11 @@ use Carbon\Carbon;
         // 1) Provera working hours za taj dan u nedelji
         $dayOfWeek = $date->dayOfWeekIso;
 
-        $wh=$workshop->workingHours()
+        $wh = $workshop->workingHours()
             ->where('day_of_week', $dayOfWeek)
             ->first();
 
-        if(!$wh || !$wh->is_active)
-        {
+        if (!$wh || !$wh->is_active) {
             return back()
                 ->withInput()
                 ->with('error', 'Workshop is not available on selected date.');
@@ -95,25 +98,24 @@ use Carbon\Carbon;
         $end   = substr($wh->end_time, 0, 5);
 
         // 2) Provera da je time unutar radnog vremena
-        if($time<$start||$time>=$end)
-        {
+        if ($time < $start || $time >= $end) {
             return back()
                 ->withInput()
-                ->with('error', 'Please choose a time between '.$start.' and '.$end.'.');
+                ->with('error', 'Please choose a time between ' . $start . ' and ' . $end . '.');
         }
 
         // 3) Provera zauzetosti
-        $alreadyTaken =$workshop->bookings()
+        $alreadyTaken = $workshop->bookings()
             ->where('date', $dateString)
             ->where('time', $time)
             ->whereIn('status', ['pending', 'approved'])
             ->exists();
 
-        if($alreadyTaken)
+        if ($alreadyTaken) {
             return back()
                 ->withInput()
                 ->with('error', 'This time slot is already taken. Choose another time.');
-
+        }
 
         try {
             Booking::create([
@@ -135,27 +137,26 @@ use Carbon\Carbon;
 
     public function availableTimes(Request $request, Workshop $workshop)
     {
-        if($workshop->status !== 'approved')
-        {
+        if ($workshop->status !== Workshop::STATUS_APPROVED) {
             abort(404);
         }
 
-        $date= $request->validate([
-           'date' => ['required', 'date', 'after_or_equal:today'],
+        $date = $request->validate([
+            'date' => ['required', 'date', 'after_or_equal:today'],
         ]);
 
-        $date=Carbon::parse($date['date']);
+        $date = Carbon::parse($date['date']);
         $dayOfWeek = $date->dayOfWeek;
-        $dateString= $date->toDateString();
+        $dateString = $date->toDateString();
 
         $isClosed = $workshop->closedDays()
             ->whereDate('start_date', '<=', $dateString)
             ->whereDate('end_date', '>=', $dateString)
             ->exists();
 
-        if($isClosed){
+        if ($isClosed) {
             return response()->json([
-                'available_times'=>[],
+                'available_times' => [],
                 'message' => 'Workshop is closed on selected date.',
             ]);
         }
@@ -171,10 +172,9 @@ use Carbon\Carbon;
             ]);
         }
 
-        $start = substr($wh->start_time, 0, 5); // HH:MM
+        $start = substr($wh->start_time, 0, 5);
         $end   = substr($wh->end_time, 0, 5);
 
-        // 3) Existing bookings for that date (pending + approved block slots)
         $taken = $workshop->bookings()
             ->where('date', $dateString)
             ->whereIn('status', ['pending', 'approved'])
@@ -183,7 +183,6 @@ use Carbon\Carbon;
             ->values()
             ->all();
 
-        // 4) Generate 30-min slots within working hours
         $slots = [];
         $cursor = Carbon::createFromFormat('Y-m-d H:i', $dateString . ' ' . $start);
         $endDt  = Carbon::createFromFormat('Y-m-d H:i', $dateString . ' ' . $end);
@@ -193,7 +192,6 @@ use Carbon\Carbon;
             $cursor->addMinutes(30);
         }
 
-        // 5) Remove taken slots
         $available = array_values(array_diff($slots, $taken));
 
         return response()->json([
@@ -202,5 +200,4 @@ use Carbon\Carbon;
             'working_hours' => ['start' => $start, 'end' => $end],
         ]);
     }
-
 }

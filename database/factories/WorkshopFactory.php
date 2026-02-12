@@ -21,7 +21,12 @@ class WorkshopFactory extends Factory
             'address' => $this->faker->streetAddress(),
             'phone' => $this->faker->phoneNumber(),
             'description' => $this->faker->sentence(),
-            'status' => $this->faker->randomElement(['approved', 'approved', 'approved', 'pending']),
+            'status' => $this->faker->randomElement([
+                Workshop::STATUS_APPROVED,
+                Workshop::STATUS_APPROVED,
+                Workshop::STATUS_APPROVED,
+                Workshop::STATUS_PENDING,
+            ]),
         ];
     }
 }

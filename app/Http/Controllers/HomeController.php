@@ -9,10 +9,10 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Workshop::query()->where('status', 'approved');
+        $query = Workshop::query()->where('status', Workshop::STATUS_APPROVED);
 
         // lista gradova za dropdown (samo iz approved workshopova)
-        $cities = Workshop::where('status', 'approved')
+        $cities = Workshop::where('status', Workshop::STATUS_APPROVED)
             ->select('city')
             ->distinct()
             ->orderBy('city')

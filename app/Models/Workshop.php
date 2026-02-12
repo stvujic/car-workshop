@@ -8,6 +8,10 @@ use App\Models\User;
 
 class Workshop extends Model
 {
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+
     use HasFactory;
     protected $fillable = [
         'owner_id','name', 'slug', 'city','address','phone','description','status'

@@ -10,7 +10,7 @@ class AdminWorkshopApprovalController extends Controller
 {
     public function index()
     {
-        $workshops = Workshop::where('status','pending')
+        $workshops = Workshop::where('status',Workshop::STATUS_PENDING)
             ->latest()
             ->paginate(10);
 
@@ -20,7 +20,7 @@ class AdminWorkshopApprovalController extends Controller
     public function approve(Workshop $workshop)
     {
         $workshop->update([
-            'status' => 'approved'
+            'status' => Workshop::STATUS_APPROVED,
         ]);
 
         return redirect()
@@ -31,7 +31,7 @@ class AdminWorkshopApprovalController extends Controller
     public function reject(Workshop $workshop)
     {
         $workshop->update([
-            'status' => 'rejected'
+            'status' => Workshop::STATUS_REJECTED,
         ]);
 
         return redirect()
