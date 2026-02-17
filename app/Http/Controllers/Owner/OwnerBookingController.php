@@ -22,26 +22,25 @@ class OwnerBookingController extends Controller
 
     public function approve(Booking $booking)
     {
-        if($booking->workshop->owner_id !== auth()->id()) {
+        if ($booking->workshop->owner_id !== auth()->id()) {
             abort(403);
         }
 
         $booking->update([
-            'status'=>'approved'
+            'status' => Booking::STATUS_APPROVED,
         ]);
 
         return back()->with('success', 'Booking approved successfully');
-
     }
 
     public function cancel(Booking $booking)
     {
-        if($booking->workshop->owner_id !== auth()->id()) {
+        if ($booking->workshop->owner_id !== auth()->id()) {
             abort(403);
         }
 
         $booking->update([
-            'status'=>'cancelled'
+            'status' => Booking::STATUS_CANCELLED,
         ]);
 
         return back()->with('success', 'Booking has been cancelled');

@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_PENDING = 'pending';
+
     use HasFactory;
 
     protected $fillable = [

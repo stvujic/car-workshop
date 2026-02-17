@@ -1,4 +1,5 @@
-<!doctype html>
+@php use App\Models\Booking; @endphp
+    <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -43,7 +44,6 @@
                 {{-- RIGHT SIDE --}}
                 <div class="d-flex gap-2 align-items-center">
 
-                    {{-- Open public workshop --}}
                     @if($booking->workshop)
                         <a href="{{ route('workshops.show', $booking->workshop) }}"
                            class="btn btn-sm btn-outline-primary">
@@ -51,8 +51,8 @@
                         </a>
                     @endif
 
-                    {{-- STATUS ACTIONS (owner) --}}
-                    @if($booking->status === 'pending')
+                    {{-- STATUS ACTIONS --}}
+                    @if($booking->status === Booking::STATUS_PENDING)
                         <form method="POST" action="{{ route('owner.bookings.approve', $booking) }}">
                             @csrf
                             @method('PATCH')
@@ -72,15 +72,15 @@
                         </form>
                     @endif
 
-                    @if($booking->status === 'approved')
+                    @if($booking->status === Booking::STATUS_APPROVED)
                         <span class="badge bg-success">
                             Approved
                         </span>
                     @endif
 
-                    @if($booking->status === 'canceled')
+                    @if($booking->status === Booking::STATUS_CANCELLED)
                         <span class="badge bg-danger">
-                            Canceled
+                            Cancelled
                         </span>
                     @endif
                 </div>

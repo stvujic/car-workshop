@@ -108,7 +108,7 @@ class WorkshopController extends Controller
         $alreadyTaken = $workshop->bookings()
             ->where('date', $dateString)
             ->where('time', $time)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_APPROVED])
             ->exists();
 
         if ($alreadyTaken) {
@@ -124,7 +124,7 @@ class WorkshopController extends Controller
                 'date' => $dateString,
                 'time' => $time,
                 'note' => $data['note'] ?? null,
-                'status' => 'pending',
+                'status' => Booking::STATUS_PENDING,
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
             return back()
@@ -177,7 +177,7 @@ class WorkshopController extends Controller
 
         $taken = $workshop->bookings()
             ->where('date', $dateString)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', [Booking::STATUS_PENDING, Booking::STATUS_APPROVED])
             ->pluck('time')
             ->map(fn ($t) => substr($t, 0, 5))
             ->values()
