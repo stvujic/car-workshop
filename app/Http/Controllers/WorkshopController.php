@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AvailableTimesRequest;
+use App\Http\Requests\StoreBookingRequest;
 use App\Models\Booking;
-use Illuminate\Database\QueryException;
-use Illuminate\Http\Request;
 use App\Models\Workshop;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 
 class WorkshopController extends Controller
 {
@@ -51,17 +52,13 @@ class WorkshopController extends Controller
         return view('workshops.show', compact('workshop', 'workingHoursForView', 'closedDays'));
     }
 
-    public function storeBooking(Request $request, Workshop $workshop)
+    public function storeBooking(StoreBookingRequest $request, Workshop $workshop)
     {
         if ($workshop->status !== Workshop::STATUS_APPROVED) {
             abort(404);
         }
 
-        $data = $request->validate([
-            'date' => 'required|date|after_or_equal:today',
-            'time' => 'required|date_format:H:i',
-            'note' => 'nullable|string|max:1000',
-        ]);
+        $data = $request->validated();
 
         $date = Carbon::parse($data['date']);
         $dateString = $date->toDateString();
@@ -82,10 +79,10 @@ class WorkshopController extends Controller
         }
 
         // 1) Provera working hours za taj dan u nedelji
-        $dayOfWeek = $date->dayOfWeekIso;
+        $dayOfWeekIso = $date->dayOfWeekIso;
 
         $wh = $workshop->workingHours()
-            ->where('day_of_week', $dayOfWeek)
+            ->where('day_of_week', $dayOfWeekIso)
             ->first();
 
         if (!$wh || !$wh->is_active) {
@@ -126,7 +123,7 @@ class WorkshopController extends Controller
                 'note' => $data['note'] ?? null,
                 'status' => Booking::STATUS_PENDING,
             ]);
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             return back()
                 ->withInput()
                 ->with('error', 'This time slot is already taken. Choose another time.');
@@ -135,18 +132,16 @@ class WorkshopController extends Controller
         return back()->with('success', 'Workshop booked successfully.');
     }
 
-    public function availableTimes(Request $request, Workshop $workshop)
+    public function availableTimes(AvailableTimesRequest $request, Workshop $workshop)
     {
         if ($workshop->status !== Workshop::STATUS_APPROVED) {
             abort(404);
         }
 
-        $date = $request->validate([
-            'date' => ['required', 'date', 'after_or_equal:today'],
-        ]);
+        $date = $request->validated();
 
         $date = Carbon::parse($date['date']);
-        $dayOfWeek = $date->dayOfWeek;
+        $dayOfWeekIso = $date->dayOfWeekIso;
         $dateString = $date->toDateString();
 
         $isClosed = $workshop->closedDays()
@@ -162,7 +157,7 @@ class WorkshopController extends Controller
         }
 
         $wh = $workshop->workingHours()
-            ->where('day_of_week', $dayOfWeek)
+            ->where('day_of_week', $dayOfWeekIso)
             ->first();
 
         if (!$wh || !$wh->is_active) {
@@ -187,7 +182,7 @@ class WorkshopController extends Controller
         $cursor = Carbon::createFromFormat('Y-m-d H:i', $dateString . ' ' . $start);
         $endDt  = Carbon::createFromFormat('Y-m-d H:i', $dateString . ' ' . $end);
 
-        while ($cursor->lte($endDt)) {
+        while ($cursor->lt($endDt)) {
             $slots[] = $cursor->format('H:i');
             $cursor->addMinutes(30);
         }
