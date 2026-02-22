@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Owner\StoreClosedDayRequest;
 use App\Models\Workshop;
 use App\Models\WorkshopClosedDay;
-use Illuminate\Http\Request;
 
 class OwnerClosedDayController extends Controller
 {
@@ -23,18 +23,14 @@ class OwnerClosedDayController extends Controller
         return view('owner.closed_days.index', compact('workshop', 'closedDays'));
     }
 
-    public function store(Request $request, Workshop $workshop)
+    public function store(StoreClosedDayRequest $request, Workshop $workshop)
     {
         if($workshop->owner_id !== auth()->id())
         {
             abort(403);
         }
 
-        $data = $request->validate([
-            'reason' => ['nullable', 'string', 'max:255'],
-            'start_date' => ['required', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-        ]);
+        $data = $request->validated();
 
         //ovo smo stavili ako imamo situaciju da je neradan jedan dan samo pa da ne dupliramo podatak npr 7.jan-7.jan
         $data['end_date'] =$data['end_date'] ?? $data['start_date'];

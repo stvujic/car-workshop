@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Owner\WorkshopRequest;
 use App\Models\Workshop;
 use Illuminate\Support\Str;
 
@@ -23,15 +23,9 @@ class OwnerWorkshopController extends Controller
         return view('owner.myshops.create');
     }
 
-    public function store(Request $request)
+    public function store(WorkshopRequest $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:50',
-            'description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $data['owner_id'] = auth()->id();
         $data['slug'] = Str::slug($data['name']) . '-' . Str::random(6);
@@ -53,19 +47,13 @@ class OwnerWorkshopController extends Controller
         return view('owner.myshops.edit', compact('workshop'));
     }
 
-    public function update(Request $request, Workshop $workshop)
+    public function update(WorkshopRequest $request, Workshop $workshop)
     {
         if ($workshop->owner_id != auth()->id()) {
             abort(403);
         }
 
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:50',
-            'description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         // reset statusa na pending jer admin mora da odobri promene
         $data['status'] = Workshop::STATUS_PENDING;

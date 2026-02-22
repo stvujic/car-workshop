@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Owner\WorkshopServiceRequest;
 use App\Models\Service;
 use App\Models\Workshop;
-use Illuminate\Http\Request;
 
 class OwnerWorkshopServiceController extends Controller
 {
@@ -31,18 +31,14 @@ class OwnerWorkshopServiceController extends Controller
         return view('owner.services.create', compact('workshop'));
     }
 
-    public function store(Request $request, Workshop $workshop)
+    public function store(WorkshopServiceRequest $request, Workshop $workshop)
     {
         if($workshop->owner_id !== auth()->id())
         {
             abort(403);
         }
 
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'duration_minutes' => 'required|integer|min:1|max:1440',
-            'price' => 'required|numeric|min:0|max:999999.99',
-        ]);
+        $data = $request->validated();
 
         $workshop->services()->create($data);
 
@@ -57,21 +53,27 @@ class OwnerWorkshopServiceController extends Controller
             abort(403);
         }
 
+        if($service->workshop_id !== $workshop->id)
+        {
+            abort(404);
+        }
+
         return view('owner.services.edit', compact('workshop', 'service'));
     }
 
-    public function update(Request $request,Workshop $workshop, Service $service)
+    public function update(WorkshopServiceRequest $request,Workshop $workshop, Service $service)
     {
         if($workshop->owner_id !== auth()->id())
         {
             abort(403);
         }
 
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'duration_minutes' => 'required|integer|min:1|max:1440',
-            'price' => 'required|numeric|min:0|max:999999.99',
-        ]);
+        if($service->workshop_id !== $workshop->id)
+        {
+            abort(404);
+        }
+
+        $data = $request->validated();
 
         $service->update($data);
 
@@ -84,6 +86,11 @@ class OwnerWorkshopServiceController extends Controller
         if($workshop->owner_id !== auth()->id())
         {
             abort(403);
+        }
+
+        if($service->workshop_id !== $workshop->id)
+        {
+            abort(404);
         }
 
         $service->delete();

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Owner\StoreWorkingHourRequest;
 use App\Models\Workshop;
-use Illuminate\Http\Request;
 
 class OwnerWorkingHourController extends Controller
 {
@@ -54,18 +54,13 @@ class OwnerWorkingHourController extends Controller
         return view('owner.working_hours.index', compact('workshop', 'workingHours', 'days'));
     }
 
-    public function store(Request $request, Workshop $workshop)
+    public function store(StoreWorkingHourRequest $request, Workshop $workshop)
     {
         if ($workshop->owner_id !== auth()->id()) {
             abort(403);
         }
 
-        $data = $request->validate([
-            'days' => ['required', 'array'],
-            'days.*.is_active' => ['nullable', 'boolean'],
-            'days.*.start_time' => ['nullable', 'date_format:H:i'],
-            'days.*.end_time' => ['nullable', 'date_format:H:i'],
-        ]);
+        $data = $request->validated();
 
         for ($day = 1; $day <= 7; $day++) {
 
