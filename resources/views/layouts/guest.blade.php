@@ -1,30 +1,72 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Car Service') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
-            </div>
+    <style>
+        body { background-color: #F5F7FA; color: #1E293B; }
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
+        .navbar-custom { background-color: #0F172A; }
+        .navbar-custom .nav-link,
+        .navbar-custom .navbar-brand { color: #fff !important; }
+        .navbar-custom .nav-link:hover { color: #D4AF37 !important; }
+
+        .btn-gold { background-color: #D4AF37; color: #0F172A; border: none; border-radius: 10px; font-weight: 600; }
+        .btn-gold:hover { background-color: #c19d2e; color: #0F172A; }
+
+        .btn-outline-gold { border: 1px solid #D4AF37; color: #D4AF37; background: transparent; border-radius: 10px; font-weight: 600; }
+        .btn-outline-gold:hover { background-color: #D4AF37; color: #0F172A; }
+
+        .card-custom { border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.04); }
+        .card-img-placeholder { height: 140px; background: linear-gradient(135deg, #0F172A, #1E293B); }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            border-radius: 10px !important;
+            border: 1px solid rgba(15, 23, 42, 0.15) !important;
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4" href="{{ route('home') }}">
+            Car Service
+        </a>
+
+        <a href="{{ route('home') }}" class="btn btn-outline-light btn-sm">
+            Back to Home
+        </a>
+    </div>
+</nav>
+
+<section class="py-5">
+    <div class="container" style="max-width: 520px;">
+        <div class="card card-custom">
+            <div class="card-img-placeholder"></div>
+
+            <div class="card-body p-4">
                 {{ $slot }}
             </div>
         </div>
-    </body>
+
+        <div class="text-center text-muted small mt-4">
+            © {{ date('Y') }} Car Service. All rights reserved.
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
