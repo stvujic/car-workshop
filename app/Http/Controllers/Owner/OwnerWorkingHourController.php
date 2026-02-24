@@ -11,9 +11,7 @@ class OwnerWorkingHourController extends Controller
 
     public function index(Workshop $workshop)
     {
-        if ($workshop->owner_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         //sadrži SAMO ono što postoji u bazi, ako ne postoji zapis, ne postoji u $existing
         $existing = $workshop->workingHours()
@@ -56,9 +54,7 @@ class OwnerWorkingHourController extends Controller
 
     public function store(StoreWorkingHourRequest $request, Workshop $workshop)
     {
-        if ($workshop->owner_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         $data = $request->validated();
 

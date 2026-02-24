@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use Illuminate\Http\Request;
 
 class OwnerBookingController extends Controller
 {
@@ -22,9 +21,7 @@ class OwnerBookingController extends Controller
 
     public function approve(Booking $booking)
     {
-        if ($booking->workshop->owner_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('manage', $booking);
 
         $booking->update([
             'status' => Booking::STATUS_APPROVED,
@@ -35,9 +32,7 @@ class OwnerBookingController extends Controller
 
     public function cancel(Booking $booking)
     {
-        if ($booking->workshop->owner_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('manage', $booking);
 
         $booking->update([
             'status' => Booking::STATUS_CANCELLED,

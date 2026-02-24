@@ -11,10 +11,7 @@ class OwnerWorkshopServiceController extends Controller
 {
     public function index(Workshop $workshop)
     {
-        if($workshop->owner_id !== auth()->id())
-        {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         $services = $workshop->services()->latest()->paginate(20);
 
@@ -23,20 +20,14 @@ class OwnerWorkshopServiceController extends Controller
 
     public function create(Workshop $workshop)
     {
-        if($workshop->owner_id !== auth()->id())
-        {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         return view('owner.services.create', compact('workshop'));
     }
 
     public function store(WorkshopServiceRequest $request, Workshop $workshop)
     {
-        if($workshop->owner_id !== auth()->id())
-        {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         $data = $request->validated();
 
@@ -48,10 +39,7 @@ class OwnerWorkshopServiceController extends Controller
 
     public function edit(Workshop $workshop, Service $service)
     {
-        if($workshop->owner_id !== auth()->id())
-        {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         if($service->workshop_id !== $workshop->id)
         {
@@ -63,10 +51,7 @@ class OwnerWorkshopServiceController extends Controller
 
     public function update(WorkshopServiceRequest $request,Workshop $workshop, Service $service)
     {
-        if($workshop->owner_id !== auth()->id())
-        {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         if($service->workshop_id !== $workshop->id)
         {
@@ -83,10 +68,8 @@ class OwnerWorkshopServiceController extends Controller
 
     public function destroy(Workshop $workshop, Service $service)
     {
-        if($workshop->owner_id !== auth()->id())
-        {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
+
 
         if($service->workshop_id !== $workshop->id)
         {

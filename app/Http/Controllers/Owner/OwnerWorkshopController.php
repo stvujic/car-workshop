@@ -40,18 +40,14 @@ class OwnerWorkshopController extends Controller
 
     public function edit(Workshop $workshop)
     {
-        if ($workshop->owner_id != auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         return view('owner.myshops.edit', compact('workshop'));
     }
 
     public function update(WorkshopRequest $request, Workshop $workshop)
     {
-        if ($workshop->owner_id != auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         $data = $request->validated();
 
@@ -67,9 +63,7 @@ class OwnerWorkshopController extends Controller
 
     public function destroy(Workshop $workshop)
     {
-        if ($workshop->owner_id != auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         $workshop->delete();
 

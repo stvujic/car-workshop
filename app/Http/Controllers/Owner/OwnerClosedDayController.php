@@ -11,10 +11,7 @@ class OwnerClosedDayController extends Controller
 {
     public function index(Workshop $workshop)
     {
-        if($workshop->owner_id !== auth()->id())
-            {
-                abort(403);
-            }
+        $this->authorize('manage', $workshop);
 
         $closedDays = $workshop->closedDays()
             ->orderBy('start_date')
@@ -25,10 +22,7 @@ class OwnerClosedDayController extends Controller
 
     public function store(StoreClosedDayRequest $request, Workshop $workshop)
     {
-        if($workshop->owner_id !== auth()->id())
-        {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         $data = $request->validated();
 
@@ -43,10 +37,7 @@ class OwnerClosedDayController extends Controller
 
     public function destroy(Workshop $workshop, WorkshopClosedDay $closedDay)
     {
-        if($workshop->owner_id !== auth()->id())
-        {
-            abort(403);
-        }
+        $this->authorize('manage', $workshop);
 
         if ($closedDay->workshop_id !== $workshop->id) {
             abort(404);
